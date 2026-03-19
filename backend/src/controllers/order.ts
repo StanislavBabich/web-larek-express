@@ -33,8 +33,7 @@ const createOrder: RequestHandler = async (req, res, next) => {
       products.map((p) => [p._id.toString(), p.price]),
     );
 
-    let sum = 0;
-    for (const id of items) {
+    const sum = items.reduce((acc, id) => {
       const price = priceById.get(id);
       if (price === undefined) {
         throw new BadRequestError('Some items do not exist');
@@ -42,8 +41,8 @@ const createOrder: RequestHandler = async (req, res, next) => {
       if (price === null) {
         throw new BadRequestError('Some items are not for sale');
       }
-      sum += price;
-    }
+      return acc + price;
+    }, 0);
 
     if (sum !== totalNum) {
       throw new BadRequestError('Total does not match items sum');

@@ -25,7 +25,8 @@ const moveImageIfNeeded = async (image?: CreateProductBody['image']) => {
 
   try {
     await fs.promises.rename(tempPath, finalPath);
-  } catch {
+  } catch (_err) {
+    return undefined;
   }
 
   return {
