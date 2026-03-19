@@ -11,7 +11,7 @@ import auth from '../middlewares/auth';
 const router = Router();
 
 router.get('/', getProducts);
-router.post('/', auth, validateCreateProduct, createProduct);
+router.post('/', validateCreateProduct, createProduct);
 router.patch('/:productId', auth, updateProduct);
 router.delete('/:productId', auth, deleteProduct);
 
