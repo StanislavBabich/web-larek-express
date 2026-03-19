@@ -20,19 +20,26 @@ type CreateProductBody = {
 const moveImageIfNeeded = async (image?: CreateProductBody['image']) => {
   if (!image) return undefined;
 
-  const tempPath = path.join(process.cwd(), 'src', 'public', UPLOAD_PATH_TEMP, path.basename(image.fileName));
-  const finalPath = path.join(process.cwd(), 'src', 'public', UPLOAD_PATH, path.basename(image.fileName));
+  const baseName = path.basename(image.fileName);
+  const tempPath = path.join(process.cwd(), 'src', 'public', UPLOAD_PATH_TEMP, baseName);
+  const finalPath = path.join(process.cwd(), 'src', 'public', UPLOAD_PATH, baseName);
 
   try {
     await fs.promises.rename(tempPath, finalPath);
+    return {
+      fileName: path.posix.join('/', UPLOAD_PATH, baseName),
+      originalName: image.originalName,
+    };
   } catch (_err) {
-    return undefined;
+    const trimmed = image.fileName.trim();
+    const fileName = trimmed.startsWith('/')
+      ? trimmed
+      : path.posix.join('/', UPLOAD_PATH, baseName);
+    return {
+      fileName,
+      originalName: image.originalName,
+    };
   }
-
-  return {
-    fileName: path.posix.join('/', UPLOAD_PATH, path.basename(image.fileName)),
-    originalName: image.originalName,
-  };
 };
 
 export const getProducts: RequestHandler = async (_req, res, next) => {
