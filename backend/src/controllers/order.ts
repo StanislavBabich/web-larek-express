@@ -48,7 +48,7 @@ const createOrder: RequestHandler = async (req, res, next) => {
       throw new BadRequestError('Total does not match items sum');
     }
 
-    res.status(201).send({
+    res.status(200).send({
       id: faker.string.uuid(),
       total: totalNum,
     });
