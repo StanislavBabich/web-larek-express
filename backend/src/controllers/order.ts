@@ -14,9 +14,13 @@ type CreateOrderBody = {
 
 const createOrder: RequestHandler = async (req, res, next) => {
   try {
-    // request body is validated by celebrate middleware
     const body = req.body as CreateOrderBody;
-    const { total, items } = body;
+    const { items } = body;
+    const totalNum = typeof body.total === 'string' ? Number(body.total) : body.total;
+
+    if (!Number.isFinite(totalNum)) {
+      throw new BadRequestError('Invalid total');
+    }
 
     const uniqueItemIds = Array.from(new Set(items));
 
@@ -25,19 +29,29 @@ const createOrder: RequestHandler = async (req, res, next) => {
       throw new BadRequestError('Some items do not exist');
     }
 
-    const notForSale = products.find((p) => p.price === null);
-    if (notForSale) {
-      throw new BadRequestError('Some items are not for sale');
+    const priceById = new Map(
+      products.map((p) => [p._id.toString(), p.price]),
+    );
+
+    let sum = 0;
+    for (const id of items) {
+      const price = priceById.get(id);
+      if (price === undefined) {
+        throw new BadRequestError('Some items do not exist');
+      }
+      if (price === null) {
+        throw new BadRequestError('Some items are not for sale');
+      }
+      sum += price;
     }
 
-    const sum = products.reduce((acc, p) => acc + (p.price ?? 0), 0);
-    if (sum !== total) {
+    if (sum !== totalNum) {
       throw new BadRequestError('Total does not match items sum');
     }
 
     res.status(201).send({
       id: faker.string.uuid(),
-      total,
+      total: totalNum,
     });
   } catch (err) {
     next(err);

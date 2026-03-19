@@ -64,7 +64,6 @@ productSchema.post('findOneAndDelete', async (doc) => {
   try {
     await fs.promises.unlink(filePath);
   } catch {
-    // ignore file delete errors
   }
 });
 

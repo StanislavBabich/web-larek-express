@@ -26,7 +26,6 @@ const moveImageIfNeeded = async (image?: CreateProductBody['image']) => {
   try {
     await fs.promises.rename(tempPath, finalPath);
   } catch {
-    // ignore if file missing
   }
 
   return {
@@ -50,7 +49,6 @@ export const getProducts: RequestHandler = async (_req, res, next) => {
 
 export const createProduct: RequestHandler = async (req, res, next) => {
   try {
-    // request body is validated by celebrate middleware
     const body = req.body as CreateProductBody;
     const {
       title, image, category, description, price,

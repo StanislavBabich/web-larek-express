@@ -8,17 +8,14 @@ type HttpError = Error & { statusCode?: number };
 const errorHandler: ErrorRequestHandler = (err: HttpError, _req, res, _next) => {
   let normalizedError: HttpError = err;
 
-  // Mongoose validation errors (schema constraints, required fields, etc.)
   if (err instanceof MongooseError.ValidationError) {
     normalizedError = new BadRequestError(err.message);
   }
 
-  // Invalid ObjectId / Cast errors
   if (err instanceof MongooseError.CastError) {
     normalizedError = new BadRequestError(err.message);
   }
 
-  // Duplicate key error (e.g. unique title)
   const maybeMongo = err as { code?: number; message?: string };
   if (maybeMongo.code === 11000 || (typeof maybeMongo.message === 'string' && maybeMongo.message.includes('E11000'))) {
     normalizedError = new ConflictError('Product title must be unique');
