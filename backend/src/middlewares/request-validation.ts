@@ -17,13 +17,13 @@ export const validateCreateProduct = celebrate({
 
 export const validateCreateOrder = celebrate({
   [Segments.BODY]: Joi.object({
-    payment: Joi.string().valid('card', 'online').required(),
+    payment: Joi.string().valid('card', 'online', 'cash').required(),
     email: Joi.string().email().required(),
     phone: Joi.string().required(),
     address: Joi.string().required(),
     total: Joi.alternatives().try(
       Joi.number(),
-      Joi.string().pattern(/^\d+$/),
+      Joi.string().pattern(/^-?\d+(\.\d+)?$/),
     ).required(),
     items: Joi.array().items(objectId.required()).min(1).required(),
   }).required(),

@@ -4,7 +4,7 @@ import Product from '../models/product';
 import BadRequestError from '../errors/bad-request-error';
 
 type CreateOrderBody = {
-  payment: 'card' | 'online';
+  payment: 'card' | 'online' | 'cash';
   email: string;
   phone: string;
   address: string;
