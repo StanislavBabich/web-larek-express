@@ -17,7 +17,7 @@ const router = Router();
 router.post('/login', validateAuthLogin, login);
 router.post('/register', validateAuthRegister, register);
 router.get('/token', refreshAccessToken);
-router.get('/logout', logout);
+router.get('/logout', auth, logout);
 router.get('/user', auth, getCurrentUser);
 
 export default router;

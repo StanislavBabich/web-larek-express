@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { errors as celebrateErrors } from 'celebrate';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 import routes from './routes';
 import errorHandler from './middlewares/error-handler';
 import { errorLogger, requestLogger } from './middlewares/logger';
@@ -24,10 +25,18 @@ const publicDir = path.join(process.cwd(), 'src', 'public');
 app.use(`/${UPLOAD_PATH}`, express.static(path.join(publicDir, UPLOAD_PATH)));
 app.use(`/${UPLOAD_PATH_TEMP}`, express.static(path.join(publicDir, UPLOAD_PATH_TEMP)));
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.get('/health', (_req, res) => {
   res.status(200).send({ status: 'ok' });
 });
 
+app.use(apiLimiter);
 app.use(requestLogger);
 app.use(routes);
 app.use(celebrateErrors());
@@ -36,11 +45,8 @@ app.use(errorHandler);
 
 mongoose.connect(DB_ADDRESS)
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server started on port ${PORT}`);
-    });
+    app.listen(PORT);
   })
-  .catch((err) => {
-    console.error('Mongo connection error', err);
+  .catch((_err) => {
     process.exit(1);
   });

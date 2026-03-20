@@ -1,11 +1,12 @@
 import path from 'path';
 import { RequestHandler } from 'express';
 import { UPLOAD_PATH } from '../config';
+import BadRequestError from '../errors/bad-request-error';
 
 const uploadFile: RequestHandler = (req, res, next) => {
   try {
     if (!req.file) {
-      res.status(400).send({ message: 'File is required' });
+      next(new BadRequestError('File is required'));
       return;
     }
 

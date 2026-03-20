@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
 import User, { IUser } from '../models/user';
-import BadRequestError from '../errors/bad-request-error';
 import ConflictError from '../errors/conflict-error';
 import NotFoundError from '../errors/not-found-error';
 import UnauthorizedError from '../errors/unauthorized-error';
@@ -55,10 +54,6 @@ export const register: RequestHandler = async (req, res, next) => {
   try {
     const { email, password, name }: AuthBody = req.body;
 
-    if (!email || !password) {
-      throw new BadRequestError('Email and password are required');
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -92,10 +87,6 @@ export const register: RequestHandler = async (req, res, next) => {
 export const login: RequestHandler = async (req, res, next) => {
   try {
     const { email, password }: AuthBody = req.body;
-
-    if (!email || !password) {
-      throw new BadRequestError('Email and password are required');
-    }
 
     const user = await User.findOne({ email }).select('+password +tokens');
     if (!user) {
